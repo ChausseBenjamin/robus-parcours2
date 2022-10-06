@@ -39,8 +39,8 @@ void Avancer(float distance)
 	int pulseReelTotalDroit = 0;
 
 	//To be updated
-	float kp = 0.0001;
-	float ki = 0.00002;
+	float kp = 0.0004;
+	float ki = 0.00008;
 
 	float previousSpeedGauche = 0.3;
 	float previousSpeedDroit = 0.3;
@@ -84,12 +84,39 @@ void Avancer(float distance)
 		previousSpeedDroit = newSpeedDroit;
 		pulseFait += nbPulseReelDroit;
 	}
+
+  MOTOR_SetSpeed(LEFT, 0);
+  MOTOR_SetSpeed(RIGHT, 0);
 }
 
-void Tourner(int moteurId, int degres)
+void Tourner(int degree, int cote)
 {
+  int moteur = LEFT;
+  if (cote == LEFT)
+  {
+    moteur = RIGHT;
+  }
+  double nbPulses = 0;
+  //Serial.println(nbPulses);
+  //bPulses = (910 * (asin((degree*(M_PI / 180.0))/2))/(M_PI / 180.0)); 
+  //Serial.println(nbPulses);
+  nbPulses = 3840; //1 roue
+  nbPulses = 3700; //2 roues
 
-}
+  nbPulses = (3840/90)*degree;
+  int i = 0;
+
+  while (i <= nbPulses)
+  {
+    Serial.println(nbPulses);
+    MOTOR_SetSpeed(moteur, 0.3);
+    //MOTOR_SetSpeed(1, -0.3);
+    i += ENCODER_ReadReset(moteur);
+  }
+  
+  MOTOR_SetSpeed(moteur, 0);
+  //MOTOR_SetSpeed(1, 0);
+} 
 
 
 /* ****************************************************************************
@@ -118,11 +145,20 @@ void loop()
 	if (ROBUS_IsBumper(REAR))
 	{
 		//Différentes parties du parcours
-		Avancer(200);
-		/*Tourner(LEFT, 90);
-		Avancer(40);
-		Tourner(RIGHT, 45);
-		Avancer(50);*/
+		Avancer(109);
+		Tourner(90, LEFT);
+    Avancer(90);
+    Tourner(90, RIGHT);
+    Avancer(70);
+    Tourner(45, RIGHT);
+    Avancer(175);
+    Tourner(90, LEFT);
+    Avancer(50);
+    Tourner(45, RIGHT);
+    Avancer(100);
+		//Avancer(40);
+		//Tourner(RIGHT, 45);
+		//Avancer(50);
 		//etc
 		while (true)
 		{
