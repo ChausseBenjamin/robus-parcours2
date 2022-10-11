@@ -26,22 +26,27 @@ void Avancer(float distance)
 {
 	// code
 	int PULSE_PAR_CM = 3200 / (7.62 * PI); // 3pouces de diametres = 7,62 cm
+	int MAX_PULSE_PAR_INTERVALLE = 700;
+	int MIN_PULSE_PAR_INTERVALLE = 150;
 
 	int pulseAFaire = distance * PULSE_PAR_CM;
 	int pulseFait = 0;
 	int nbVerif = 0;
-	int nbPulseVouluParIntervalle = 400;
-	int intervalleTemps = 100;
+	int nbPulseVouluParIntervalle = 200;
+	int intervalleTemps = 80;
 
 	int pulseReelTotalGauche = 0;
 	int pulseReelTotalDroit = 0;
+
+	int nbPulseVouluTotal = 0;
 
 	// To be updated
 	float kp = 0.0005;
 	float ki = 0.0001;
 
-	float previousSpeedGauche = 0.32;
-	float previousSpeedDroit = 0.3;
+	float previousSpeedGauche = 0.2;
+	float previousSpeedDroit = 0.2;
+	float accelerationFactor = 0.2;
 	MOTOR_SetSpeed(LEFT, previousSpeedGauche);
 	MOTOR_SetSpeed(RIGHT, previousSpeedDroit);
 
@@ -54,21 +59,25 @@ void Avancer(float distance)
 		int erreurGauche = nbPulseVouluParIntervalle - nbPulseReelGauche;
 		int erreurDroit = nbPulseVouluParIntervalle - nbPulseReelDroit;
 
-		Serial.print("Nb pusle reel : ");
-		Serial.print(nbPulseReelDroit);
-		Serial.print(" ----- Motor Speed Left: ");
-		Serial.print(previousSpeedGauche);
-		Serial.print(" ----- Erreur Gauche: ");
-		Serial.print(erreurGauche);
-		Serial.print("\n");
-
-		int pulseVouluTotal = nbPulseVouluParIntervalle * nbVerif;
+		nbPulseVouluTotal += nbPulseVouluParIntervalle;
+		if (pulseAFaire - pulseFait < 4000)
+		{
+			nbPulseVouluParIntervalle -= 150;
+			if (nbPulseVouluParIntervalle < MIN_PULSE_PAR_INTERVALLE)
+			{
+				nbPulseVouluParIntervalle = MIN_PULSE_PAR_INTERVALLE;
+			}
+		}
+		else if (nbPulseVouluParIntervalle < MAX_PULSE_PAR_INTERVALLE)
+		{
+			nbPulseVouluParIntervalle += 30;
+		}
 		pulseReelTotalGauche += nbPulseReelGauche;
 		pulseReelTotalDroit += nbPulseReelDroit;
 		ENCODER_Reset(LEFT);
 		ENCODER_Reset(RIGHT);
-		int erreurTotalGauche = pulseVouluTotal - pulseReelTotalGauche;
-		int erreurTotalDroit = pulseVouluTotal - pulseReelTotalGauche;
+		int erreurTotalGauche = nbPulseVouluTotal - pulseReelTotalGauche;
+		int erreurTotalDroit = nbPulseVouluTotal - pulseReelTotalGauche;
 
 		float correctionGauche = erreurGauche * kp + erreurTotalGauche * ki;
 		float correctionDroit = erreurDroit * kp + erreurTotalDroit * ki;
@@ -103,7 +112,7 @@ void Tourner(int degree, int cote)
 	nbPulses = 3840; // 1 roue
 	nbPulses = 3700; // 2 roues
 
-	//float arc  = angle*rayon;
+	// float arc  = angle*rayon;
 	nbPulses = (3840 / 90) * degree;
 	int i = 0;
 
@@ -119,14 +128,12 @@ void Tourner(int degree, int cote)
 	// MOTOR_SetSpeed(1, 0);
 }
 
-
-
 void Faire180()
 {
 	double nbPulses = 0;
 	int i = 0;
-	//nbPulses = 3620; //Robot A
-	nbPulses = 3950; //Robot B
+	// nbPulses = 3750; //Robot A
+	nbPulses = 3950; // Robot B
 	while (i <= nbPulses)
 	{
 		Serial.println(nbPulses);
@@ -134,13 +141,12 @@ void Faire180()
 		MOTOR_SetSpeed(1, -0.2);
 		i += ENCODER_ReadReset(0);
 	}
-  
-  MOTOR_SetSpeed(RIGHT, 0);
-  MOTOR_SetSpeed(LEFT, 0);
-  ENCODER_Reset(LEFT);
-  ENCODER_Reset(RIGHT);
-}
 
+	MOTOR_SetSpeed(RIGHT, 0);
+	MOTOR_SetSpeed(LEFT, 0);
+	ENCODER_Reset(LEFT);
+	ENCODER_Reset(RIGHT);
+}
 
 /* ****************************************************************************
 Fonctions d'initialisation (setup)
@@ -167,14 +173,14 @@ void loop()
 	{
 		// Différentes parties du parcours
 
-		//Robot B
+		// Robot B
 		Avancer(111);
 		Tourner(90, LEFT);
 		Avancer(66);
 		Tourner(90, RIGHT);
 		Avancer(80);
 		Tourner(47, RIGHT);
-		Avancer(160);
+		Avancer(166);
 		Tourner(90, LEFT);
 		Avancer(39);
 		Tourner(45, RIGHT);
@@ -194,7 +200,7 @@ void loop()
 		Tourner(90, RIGHT);
 		Avancer(111);
 
-		//Faire180();
+		// Faire180();
 
 		while (true)
 		{
