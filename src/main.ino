@@ -91,32 +91,68 @@ void Avancer(float distance)
 
 void Tourner(int degree, int cote)
 {
+	
   int moteur = LEFT;
   if (cote == LEFT)
   {
     moteur = RIGHT;
   }
   double nbPulses = 0;
-  //Serial.println(nbPulses);
-  //bPulses = (910 * (asin((degree*(M_PI / 180.0))/2))/(M_PI / 180.0)); 
-  //Serial.println(nbPulses);
+  Serial.println(nbPulses);
   nbPulses = 3840; //1 roue
   nbPulses = 3700; //2 roues
 
   nbPulses = (3840/90)*degree;
   int i = 0;
 
+
+  //---------------------
+  //Arc
+  /*Serial.println(nbPulses);
+  nbPulses=degree;
+  Serial.println(nbPulses);
+  nbPulses = nbPulses / 360;
+  Serial.println(nbPulses);
+  nbPulses *= 1500;
+  Serial.println(nbPulses);
+  nbPulses = floor(nbPulses/2);
+  Serial.println(nbPulses);*/
+  //---------------------
+
   while (i <= nbPulses)
   {
     Serial.println(nbPulses);
     MOTOR_SetSpeed(moteur, 0.3);
     //MOTOR_SetSpeed(1, -0.3);
-    i += ENCODER_ReadReset(moteur);
+    i += ENCODER_ReadReset(0);
   }
   
+  //MOTOR_SetSpeed(RIGHT, 0);
+  //MOTOR_SetSpeed(LEFT, 0);
   MOTOR_SetSpeed(moteur, 0);
   //MOTOR_SetSpeed(1, 0);
 } 
+
+
+
+void Faire360(void)
+{
+	double nbPulses = 0;
+	int i = 0;
+	nbPulses = 3700; //2 roues
+	while (i <= nbPulses)
+	{
+		Serial.println(nbPulses);
+		MOTOR_SetSpeed(0, 0.1);
+		MOTOR_SetSpeed(1, -0.1);
+		i += ENCODER_ReadReset(0);
+	}
+  
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  ENCODER_Reset(LEFT);
+  ENCODER_Reset(RIGHT);
+}
 
 
 /* ****************************************************************************
@@ -145,17 +181,38 @@ void loop()
 	if (ROBUS_IsBumper(REAR))
 	{
 		//Différentes parties du parcours
-		Avancer(109);
+		/*Avancer(109);
 		Tourner(90, LEFT);
-    Avancer(90);
-    Tourner(90, RIGHT);
-    Avancer(70);
-    Tourner(45, RIGHT);
-    Avancer(175);
-    Tourner(90, LEFT);
-    Avancer(50);
-    Tourner(45, RIGHT);
-    Avancer(100);
+		Avancer(90);
+		Tourner(90, RIGHT);
+		Avancer(70);
+		Tourner(45, RIGHT);
+		Avancer(175);
+		Tourner(90, LEFT);
+		Avancer(50);
+		Tourner(45, RIGHT);
+		Avancer(100);*/
+
+		/*Avancer(30);
+		Avancer(30);delay(25);
+		Tourner(90, RIGHT);
+		Avancer(30);
+		Faire360();
+		Avancer(30);delay(25);
+		Tourner(90, LEFT);
+		Avancer(30);
+		delay(3000);*/
+
+		Avancer(30);
+		Faire360();
+		delay(50);
+		Avancer(30);
+		Faire360();
+		Avancer(30);
+		Faire360();
+		Avancer(30);
+		Faire360();
+
 		//Avancer(40);
 		//Tourner(RIGHT, 45);
 		//Avancer(50);
