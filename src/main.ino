@@ -38,7 +38,7 @@ void Avancer(float distance)
 
 	// To be updated
 	float kp = 0.0005;
-	float ki = 0.00008;
+	float ki = 0.0001;
 
 	float previousSpeedGauche = 0.32;
 	float previousSpeedDroit = 0.3;
@@ -85,6 +85,8 @@ void Avancer(float distance)
 
 	MOTOR_SetSpeed(LEFT, 0);
 	MOTOR_SetSpeed(RIGHT, 0);
+	ENCODER_Reset(LEFT);
+	ENCODER_Reset(RIGHT);
 }
 
 void Tourner(int degree, int cote)
@@ -101,6 +103,7 @@ void Tourner(int degree, int cote)
 	nbPulses = 3840; // 1 roue
 	nbPulses = 3700; // 2 roues
 
+	//float arc  = angle*rayon;
 	nbPulses = (3840 / 90) * degree;
 	int i = 0;
 
@@ -115,6 +118,29 @@ void Tourner(int degree, int cote)
 	MOTOR_SetSpeed(moteur, 0);
 	// MOTOR_SetSpeed(1, 0);
 }
+
+
+
+void Faire180()
+{
+	double nbPulses = 0;
+	int i = 0;
+	//nbPulses = 3620; //Robot A
+	nbPulses = 3950; //Robot B
+	while (i <= nbPulses)
+	{
+		Serial.println(nbPulses);
+		MOTOR_SetSpeed(0, 0.2);
+		MOTOR_SetSpeed(1, -0.2);
+		i += ENCODER_ReadReset(0);
+	}
+  
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  ENCODER_Reset(LEFT);
+  ENCODER_Reset(RIGHT);
+}
+
 
 /* ****************************************************************************
 Fonctions d'initialisation (setup)
@@ -140,29 +166,36 @@ void loop()
 	if (ROBUS_IsBumper(REAR))
 	{
 		// Différentes parties du parcours
-		/*Avancer(113);
-		Tourner(90, LEFT);
-		Avancer(67.5);
-		Tourner(90, RIGHT);
-		Avancer(70);
-		Tourner(45, RIGHT);
-		Avancer(175);
-		Tourner(90, LEFT);
-		Avancer(50);
-		Tourner(45, RIGHT);
-		Avancer(100);*/
 
+		//Robot B
 		Avancer(111);
 		Tourner(90, LEFT);
 		Avancer(66);
 		Tourner(90, RIGHT);
-		Avancer(88);
-		Tourner(45, RIGHT);
-		Avancer(147);
+		Avancer(80);
+		Tourner(47, RIGHT);
+		Avancer(160);
 		Tourner(90, LEFT);
 		Avancer(39);
 		Tourner(45, RIGHT);
-		Avancer(92);
+		Avancer(105);
+		delay(500);
+		Faire180();
+		delay(500);
+		Avancer(105);
+		Tourner(45, LEFT);
+		Avancer(39);
+		Tourner(92, RIGHT);
+		Avancer(160);
+		Tourner(47, LEFT);
+		Avancer(80);
+		Tourner(90, LEFT);
+		Avancer(66);
+		Tourner(90, RIGHT);
+		Avancer(111);
+
+		//Faire180();
+
 		while (true)
 		{
 			/* do nothing --- needed to stop "loop" */
